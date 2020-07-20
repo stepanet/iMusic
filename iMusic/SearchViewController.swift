@@ -7,33 +7,23 @@
 //
 
 import UIKit
+import Alamofire
 
-
-struct TrackModel {
-    var trackName: String
-    var artistName: String
-    var image: UIImage
-}
 
 class SearchViewController: UITableViewController {
     
-    let searchController = UISearchController(searchResultsController: nil)
+    var timer: Timer?
+    var networkService = NetworkService()
     
+    let searchController = UISearchController(searchResultsController: nil)
     let cellid = "cellid"
-    let tracks = [
-        TrackModel(trackName: "Are You Even Real?", artistName: "James Blake", image: #imageLiteral(resourceName: "Assume Form")),
-        TrackModel(trackName: "Retrograde", artistName: "James Blake", image: #imageLiteral(resourceName: "You're Too Precious - Single")),
-        TrackModel(trackName: "You're Too Precious", artistName: "James Blake", image: #imageLiteral(resourceName: "James Blake")),
-        TrackModel(trackName: "Mile High (feat. Travis Scott & Metro Boomin)", artistName: "James Blake", image: #imageLiteral(resourceName: "James Blake")),
-        TrackModel(trackName: "The Wilhelm Scream", artistName: "James Blake", image: #imageLiteral(resourceName: "Overgrown (Deluxe Edition)")),
-        TrackModel(trackName: "Barefoot in the Park (feat. ROSALÍA)", artistName: "James Blake", image: #imageLiteral(resourceName: "You're Too Precious - Single"))
-    ]
+    
+    var tracks = [Track]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
 
-        
         view.backgroundColor = .white
         setupSearchBar()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellid)
@@ -54,7 +44,7 @@ class SearchViewController: UITableViewController {
         let track = tracks[indexPath.row]
         cell.textLabel?.text = "\(track.trackName)\n\(track.artistName)"
         cell.textLabel?.numberOfLines = 2
-        cell.imageView?.image = track.image
+        //cell.imageView?.image = track.artworkUrl100
         return cell
     }
     
@@ -63,8 +53,18 @@ class SearchViewController: UITableViewController {
 
 extension SearchViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText.count > 5 {
-         print(searchText)
-        }
+        
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { (_) in
+        
+        let searchReplaceText = searchText.replacingOccurrences(of: " ", with: "+", options: .literal, range: nil)
+        
+            self.networkService.fetchTracks(searchText: searchReplaceText) { [weak self] (searchResults) in
+                self?.tracks = searchResults!.results 
+                self?.tableView.reloadData()
+            }
+            
+
+        })
     }
 }
