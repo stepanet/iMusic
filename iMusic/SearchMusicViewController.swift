@@ -10,7 +10,7 @@ import UIKit
 import Alamofire
 
 
-class SearchViewController: UITableViewController {
+class SearchMusicViewController: UITableViewController {
     
     var timer: Timer?
     var networkService = NetworkService()
@@ -44,14 +44,14 @@ class SearchViewController: UITableViewController {
         let track = tracks[indexPath.row]
         cell.textLabel?.text = "\(track.trackName)\n\(track.artistName)"
         cell.textLabel?.numberOfLines = 2
-        //cell.imageView?.image = track.artworkUrl100
+        cell.imageView?.image = #imageLiteral(resourceName: "Library") //track.artworkUrl100
         return cell
     }
     
 }
 
 
-extension SearchViewController: UISearchBarDelegate {
+extension SearchMusicViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         timer?.invalidate()
