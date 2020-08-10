@@ -18,6 +18,8 @@ class SearchViewController: UIViewController, SearchDisplayLogic {
     var router: (NSObjectProtocol & SearchRoutingLogic)?
     var timer: Timer?
     
+    private lazy var footerView = FooterView()
+    
     @IBOutlet weak var table: UITableView!
     let searchController = UISearchController(searchResultsController: nil)
     private var searchViewModel = SearchViewModel.init(cells: [])
@@ -57,6 +59,7 @@ class SearchViewController: UIViewController, SearchDisplayLogic {
         
         let nib = UINib(nibName: "TrackCell", bundle: nil)
         table.register(nib, forCellReuseIdentifier: TrackCell.reuseId)
+        table.tableFooterView = footerView
     }
     
     
@@ -70,14 +73,30 @@ class SearchViewController: UIViewController, SearchDisplayLogic {
     func displayData(viewModel: Search.Model.ViewModel.ViewModelData) {
         
         switch viewModel {
-        case .some:
-            print("viewModel .some")
         case .displayTracks(let searchViewModel):
             print("viewModel . displayTracks")
             self.searchViewModel = searchViewModel
             table.reloadData()
+            footerView.hideLoader()
             
+        case .displayFooterView:
+            footerView.showLoading()
         }
+    }
+    
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let label = UILabel()
+        label.text = "Введите в поиск название..."
+        label.textAlignment = .center
+        label.numberOfLines = 2
+        label.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        return label
+        
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return searchViewModel.cells.count > 0 ? 0 : 250 
     }
     
 }
@@ -97,6 +116,17 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         cell.set(viewModel: cellViewModel)
         return cell
     }
+    
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let cellViewModel = searchViewModel.cells[indexPath.row]
+        print(cellViewModel.artistName)
+        let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
+           // UIApplication.shared.keyWindow
+        let trackDetailView = Bundle.main.loadNibNamed("TrackDetailView", owner: self, options: nil)?.first as! TrackDetailView
+        window?.addSubview(trackDetailView)
+    }
+    
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 84
