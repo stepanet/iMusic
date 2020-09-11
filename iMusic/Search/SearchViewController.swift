@@ -122,7 +122,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         let cellViewModel = searchViewModel.cells[indexPath.row]
         print(cellViewModel.artistName)
         let window = UIApplication.shared.windows.filter {$0.isKeyWindow}.first
-           // UIApplication.shared.keyWindow
+           //  UIApplication.shared.keyWindow
         let trackDetailView = Bundle.main.loadNibNamed("TrackDetailView", owner: self, options: nil)?.first as! TrackDetailView
         window?.addSubview(trackDetailView)
     }
